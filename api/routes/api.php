@@ -17,11 +17,11 @@ Route::post("/register", [AuthController::class, "register"])->middleware("auth:
 Route::get("/user/{id}", [UserController::class, "show_user"]);
 
 // Employee routes (read only)
-Route::get('employees', [EmployeeController::class, 'index']);
-Route::get('employees/{id}', [EmployeeController::class, 'show']);
-
-// Employee profile routes (for logged-in employee)
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('employees', [EmployeeController::class, 'index']);
+    Route::get('employees/{id}', [EmployeeController::class, 'show']);
+    
+    // Employee profile routes (for logged-in employee)
     Route::patch('employee/profile/{id}', [EmployeeProfileController::class, 'update']);
 });
 
@@ -31,6 +31,19 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::patch('employee/management/{id}', [EmployeeManagementController::class, 'update']);
 });
 
-// Other resources
-Route::apiResource('positions', PositionController::class);
-Route::apiResource('departments', DepartmentController::class);
+// Department routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('departments', [DepartmentController::class, 'index']);
+    Route::get('departments/{id}', [DepartmentController::class, 'show']);
+});
+
+// Department management (admin only)
+Route::middleware(['auth:sanctum'])->group(function () {
+    // TODO: Add 'admin' middleware
+    Route::post('departments', [DepartmentController::class, 'store']);
+    Route::patch('departments/{id}', [DepartmentController::class, 'update']);
+    Route::delete('departments/{id}', [DepartmentController::class, 'destroy']);
+});
+
+// Position routes
+Route::apiResource('positions', PositionController::class)->middleware('auth:sanctum');
