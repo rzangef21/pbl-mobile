@@ -21,13 +21,11 @@ class ProfileScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
-                  /*
                   CircleAvatar(
                     radius: 30,
                     backgroundColor: Colors.white,
                     child: Icon(Icons.person, size: 40, color: Colors.grey),
                   ),
-                  */
                   SizedBox(height: 16),
 
                   // Judul
