@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -11,19 +12,12 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 class IzinDashboardController extends Controller
 {
-    public function __invoke()
+    public function __invoke(Request $request)
     {
-        // Total karyawan yang sudah mengajukan minimal 1 surat
-        $employeesWithLetters = DB::table('letters')
-            ->distinct('employee_id')
-            ->count('employee_id');
-
+        // Perhitungan dashboard tetap sama
+        $employeesWithLetters = DB::table('letters')->distinct('employee_id')->count('employee_id');
         $totalEmployees = DB::table('employees')->count();
-
-        $totalLettersApproved = DB::table('letters')
-            ->where('status', 1)
-            ->count();
-
+        $totalLettersApproved = DB::table('letters')->where('status', 1)->count();
         $totalLetters = DB::table('letters')->count();
 
         $departments = DB::table('departments')
@@ -44,17 +38,27 @@ class IzinDashboardController extends Controller
                 ];
             });
 
-        $allLetters = DB::table('letters')
+        // Filter bulan
+        $month = (int) $request->query('month', 0);
+
+        $lettersQuery = DB::table('letters')
             ->join('employees', 'employees.id', '=', 'letters.employee_id')
             ->leftJoin('departments', 'departments.id', '=', 'employees.department_id')
             ->leftJoin('letter_formats', 'letter_formats.id', '=', 'letters.letter_format_id')
-            ->where('letters.status', 1)
+            ->where('letters.status', 1);
+
+        if ($month >= 1 && $month <= 12) {
+            $lettersQuery->whereMonth('letters.request_date', $month);
+        }
+
+        $allLetters = $lettersQuery
             ->select(
                 'employees.id as employee_id',
                 DB::raw("CONCAT(employees.first_name, ' ', employees.last_name) AS employee_name"),
                 'departments.name as department_name',
                 DB::raw("COUNT(letters.id) as total_approved_letters"),
-                DB::raw("GROUP_CONCAT(DISTINCT letter_formats.name SEPARATOR ', ') as cuti_list")
+                DB::raw("GROUP_CONCAT(letter_formats.name SEPARATOR ', ') as cuti_list"),
+                DB::raw("GROUP_CONCAT(letters.request_date ORDER BY letters.request_date SEPARATOR ',') as cuti_dates")
             )
             ->groupBy(
                 'employees.id',
@@ -76,18 +80,27 @@ class IzinDashboardController extends Controller
     }
 
 
-    public function exportApprovedLetters()
+    public function exportApprovedLetters(Request $request)
     {
-        $data = DB::table('letters')
+        $month = (int) $request->query('month', 0);
+
+        $query = DB::table('letters')
             ->join('employees', 'employees.id', '=', 'letters.employee_id')
             ->leftJoin('departments', 'departments.id', '=', 'employees.department_id')
             ->leftJoin('letter_formats', 'letter_formats.id', '=', 'letters.letter_format_id')
-            ->where('letters.status', 1)
+            ->where('letters.status', 1);
+
+        if ($month >= 1 && $month <= 12) {
+            $query->whereMonth('letters.request_date', $month);
+        }
+
+        $data = $query
             ->select(
                 DB::raw("CONCAT(employees.first_name, ' ', employees.last_name) AS employee_name"),
                 'departments.name as department_name',
                 DB::raw("COUNT(letters.id) as total_approved_letters"),
-                DB::raw("GROUP_CONCAT(DISTINCT letter_formats.name SEPARATOR ', ') as cuti_list")
+                DB::raw("GROUP_CONCAT(letter_formats.name ORDER BY letter_formats.name SEPARATOR ',') as cuti_list"),
+                DB::raw("GROUP_CONCAT(letters.request_date ORDER BY letters.request_date SEPARATOR ',') as cuti_dates")
             )
             ->groupBy(
                 'employees.id',
@@ -98,61 +111,57 @@ class IzinDashboardController extends Controller
             ->orderBy('employee_name', 'ASC')
             ->get();
 
-        // EXCEL ----------------------------------------------------
+        // EXCEL
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
-        // HEADER
         $sheet->setCellValue('A1', 'Nama Karyawan');
         $sheet->setCellValue('B1', 'Departemen');
         $sheet->setCellValue('C1', 'Total Cuti Disetujui');
-        $sheet->setCellValue('D1', 'Jenis Cuti');
+        $sheet->setCellValue('D1', 'Jenis Cuti + Tanggal');
 
-        // STYLE HEADER
-        $headerStyle = [
+        $sheet->getStyle('A1:D1')->applyFromArray([
             'font' => ['bold' => true],
             'fill' => [
-                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'fillType' => Fill::FILL_SOLID,
                 'startColor' => ['rgb' => 'DDDDDD']
             ],
             'borders' => [
-                'allBorders' => [
-                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN
-                ]
+                'allBorders' => ['borderStyle' => Border::BORDER_THIN]
             ]
-        ];
+        ]);
 
-        $sheet->getStyle('A1:D1')->applyFromArray($headerStyle);
-
-        // DATA
         $row = 2;
         foreach ($data as $item) {
+
+            $cutiList = explode(',', $item->cuti_list);
+            $cutiDates = explode(',', $item->cuti_dates);
+
+            $combined = [];
+            foreach ($cutiList as $index => $cutiName) {
+                $date = $cutiDates[$index] ?? '-';
+                $combined[] = "{$cutiName} ({$date})";
+            }
+
             $sheet->setCellValue("A{$row}", $item->employee_name);
             $sheet->setCellValue("B{$row}", $item->department_name);
             $sheet->setCellValue("C{$row}", $item->total_approved_letters);
-            $sheet->setCellValue("D{$row}", $item->cuti_list);
+            $sheet->setCellValue("D{$row}", implode(", ", $combined));
+
             $row++;
         }
 
-        // BORDER FULL TABLE
-        $sheet->getStyle("A1:D" . ($row - 1))
-            ->getBorders()->getAllBorders()->setBorderStyle(
-                \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN
-            );
-
-        // AUTO SIZE
         foreach (range('A', 'D') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 
-        // SAVE FILE
         $fileName = "laporan_cuti_disetujui.xlsx";
         $filePath = storage_path("app/public/{$fileName}");
-        
+
         $writer = new Xlsx($spreadsheet);
         $writer->save($filePath);
 
-        return response()->download($filePath, $fileName)->deleteFileAfterSend(true);
+        return response()->download($filePath)->deleteFileAfterSend(true);
     }
 
 }
