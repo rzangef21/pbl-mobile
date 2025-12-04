@@ -151,6 +151,45 @@ class IzinDashboardController extends Controller
         }
     }
 
+    public function updateStatus(Request $request, $id)
+    {
+        try {
+            $status = $request->status;
+
+            if (!in_array($status, [0, 1, 2])) {
+                return ResponseWrapper::make(
+                    "Status tidak valid",
+                    400,
+                    false,
+                    null,           // data
+                    null            // errors
+                );
+            }
+
+            DB::table('letters')
+                ->where('id', $id)
+                ->update([
+                    'status' => $status
+                ]);
+
+            return ResponseWrapper::make(
+                "Status berhasil diperbarui",
+                200,
+                true,
+                null,           // data
+                null            // errors
+            );
+        } catch (\Exception $e) {
+            return ResponseWrapper::make(
+                "Gagal memperbarui status",
+                500,
+                false,
+                null,                // data
+                $e->getMessage()     // errors
+            );
+        }
+    }
+
 
 
 
