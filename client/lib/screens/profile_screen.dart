@@ -18,6 +18,7 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: CustomAppbar(title: ""),
       body: SingleChildScrollView(
         child: FutureBuilder(
           future: UserService.instance.getUser(userId),
@@ -49,7 +50,7 @@ Widget profileSection(BuildContext context, UserModel<EmployeeModel>? user) {
     children: [
       Container(
         width: double.infinity,
-        padding: const EdgeInsets.fromLTRB(24, 60, 24, 40),
+        padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
         decoration: const BoxDecoration(color: Color(0xFF22A9D6)),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -95,9 +96,12 @@ Widget profileSection(BuildContext context, UserModel<EmployeeModel>? user) {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _ProfileField(
-                title: "Nama Panjang",
-                value:
-                    "${user?.employee?.firstName ?? ""} ${user?.employee?.lastName ?? ""}",
+                title: "Nama Awal",
+                value: user?.employee?.firstName ?? "",
+              ),
+              _ProfileField(
+                title: "Nama Akhir",
+                value: user?.employee?.lastName ?? "",
               ),
               _ProfileField(title: "Email", value: user?.email ?? ""),
               _ProfileField(
@@ -108,8 +112,14 @@ Widget profileSection(BuildContext context, UserModel<EmployeeModel>? user) {
                 title: "Alamat",
                 value: user?.employee?.address ?? "",
               ),
-              _ProfileField(title: "Jabatan", value: "Front-End Developer"),
-              _ProfileField(title: "Departemen", value: "Teknologi Informasi"),
+              _ProfileField(
+                title: "Jabatan",
+                value: user?.employee?.position ?? "",
+              ),
+              _ProfileField(
+                title: "Departemen",
+                value: user?.employee?.department ?? "",
+              ),
 
               _ProfileField(
                 title: "Jatah Cuti",

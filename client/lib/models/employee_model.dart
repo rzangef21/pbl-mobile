@@ -7,8 +7,8 @@ class EmployeeModel {
   final String address;
   final String createdAt;
   final String updatedAt;
-  final int positionId;
-  final int departementId;
+  final String position;
+  final String department;
   final String employementStatus;
 
   EmployeeModel({
@@ -20,8 +20,8 @@ class EmployeeModel {
     required this.address,
     required this.createdAt,
     required this.updatedAt,
-    required this.positionId,
-    required this.departementId,
+    required this.position,
+    required this.department,
     required this.employementStatus,
   });
 
@@ -35,12 +35,8 @@ class EmployeeModel {
       address: json["address"] ?? "",
       createdAt: json["created_at"] ?? "",
       updatedAt: json["updated_at"] ?? "",
-      positionId: json["position_id"] is int
-          ? json["position_id"]
-          : int.tryParse(json["position_id"].toString()) ?? 0,
-      departementId: json["departement_id"] is int
-          ? json["departement_id"]
-          : int.tryParse(json["departement_id"].toString()) ?? 0,
+      position: json["position"]["name"] ?? "",
+      department: json["department"]["name"] ?? "",
       employementStatus:
           json["employment_status"] ?? json["employement_status"] ?? "",
     );
