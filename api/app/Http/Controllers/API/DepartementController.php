@@ -11,7 +11,13 @@ class DepartementController extends Controller
 {
     public function show_departements()
     {
-        $departements = Department::all(["id", "name"]);
+        $departements = Department::all([
+            "id",
+            "name",
+            "latitude",
+            "longitude",
+            "radius_meters",
+        ]);
         return ResponseWrapper::make(
             "Departements found",
             200,

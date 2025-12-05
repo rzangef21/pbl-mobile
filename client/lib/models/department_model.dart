@@ -1,5 +1,5 @@
 class DepartmentModel {
-  final String id;
+  final int id;
   final String name;
 
   DepartmentModel({required this.id, required this.name});

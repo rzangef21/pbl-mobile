@@ -1,7 +1,13 @@
+import 'package:client/models/register_model.dart';
+import 'package:client/services/department_service.dart';
+import 'package:client/services/position_service.dart';
+import 'package:client/services/register_service.dart';
+import 'package:client/utils/api_wrapper.dart';
 import 'package:client/widgets/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:go_router/go_router.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -13,19 +19,56 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
   bool isObscure = true;
-
+  Map<String, dynamic> initialFormData = {
+    "nama_depan": "John",
+    "nama_belakang": "Doe",
+    "email": "john.doe@example.com",
+    "jenis_kelamin": "P", // "P" for Pria, "L" for Wanita
+    "alamat": "123 Main St",
+    "jabatan": "2", // Example ID for Jabatan
+    "departemen": "3", // Example ID for Departemen
+    "password": "123456",
+  };
   // --------- CENTRALIZED VALIDATOR ---------- //
   String? Function(String?) requiredField(String label) {
     return FormBuilderValidators.required(errorText: "$label harus diisi");
   }
 
   // --------- HANDLE REGISTER ---------- //
-  void handleRegister() {
+  Future<void> handleRegister(BuildContext context) async {
     if (!_formKey.currentState!.saveAndValidate()) return;
 
     final form = _formKey.currentState!.value;
-    print("REGISTER DATA:");
-    print(form);
+
+    RegisterModel registerData = RegisterModel(
+      firstName: form["nama_depan"],
+      lastName: form["nama_belakang"],
+      address: form["alamat"],
+      email: form["email"],
+      gender: form["jenis_kelamin"],
+      password: form["password"],
+      departmentId: int.parse(form["departemen"]),
+      positionId: int.parse(form["jabatan"]),
+    ).get();
+
+    ApiResponse<dynamic> registerResponse = await RegisterService.instance
+        .createUser(registerData);
+
+    if (!context.mounted) return;
+
+    if (!registerResponse.success) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(registerResponse.message)));
+      return;
+    }
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text("Sukses tambah data!")));
+
+    context.pop();
+    return;
   }
 
   @override
@@ -84,6 +127,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 padding: const EdgeInsets.all(20),
                 child: FormBuilder(
                   key: _formKey,
+                  // initialValue: initialFormData,
                   child: Column(
                     children: [
                       const SizedBox(height: 10),
@@ -134,14 +178,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
-                          onPressed: handleRegister,
+                          onPressed: () => handleRegister(context),
                           child: const Text(
                             "Daftar Karyawan Baru",
                             style: TextStyle(fontSize: 16, color: Colors.white),
                           ),
                         ),
                       ),
-
                       const SizedBox(height: 20),
                     ],
                   ),
@@ -229,6 +272,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             style: TextStyle(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 4),
+
           FormBuilderTextField(
             name: "password",
             obscureText: isObscure,
@@ -318,30 +362,51 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget _formDropdownJabatan() {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text("Jabatan", style: TextStyle(fontWeight: FontWeight.w600)),
-          const SizedBox(height: 4),
-          FormBuilderDropdown<String>(
-            name: "jabatan",
-            validator: requiredField("Jabatan"),
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: Colors.grey.shade100,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
+      child: FutureBuilder(
+        future: PositionService.instance.getPositions(),
+        builder: (context, snapshot) {
+          List<DropdownMenuItem<String>>? positions = snapshot.data?.data?.map((
+            position,
+          ) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return DropdownMenuItem<String>(
+                value: "",
+                child: Center(child: CircularProgressIndicator()),
+              );
+            } else {
+              return DropdownMenuItem<String>(
+                value: position.id.toString(),
+                child: Text(position.name),
+              );
+            }
+          }).toList();
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Jabatan",
+                style: TextStyle(fontWeight: FontWeight.w600),
               ),
-            ),
-            hint: const Text("Pilih Jabatan"),
-            items: const [
-              DropdownMenuItem(value: "manager", child: Text("Manager")),
-              DropdownMenuItem(value: "supervisor", child: Text("Supervisor")),
-              DropdownMenuItem(value: "staff", child: Text("Staff")),
-              DropdownMenuItem(value: "intern", child: Text("Intern")),
+              const SizedBox(height: 4),
+              FormBuilderDropdown<String>(
+                name: "jabatan",
+                validator: requiredField("Jabatan"),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.grey.shade100,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                hint: const Text("Pilih Jabatan"),
+                items:
+                    positions ??
+                    [DropdownMenuItem(child: Text("Tidak ada data"))],
+              ),
             ],
-          ),
-        ],
+          );
+        },
       ),
     );
   }
@@ -350,33 +415,51 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget _formDropdownDepartemen() {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "Departemen",
-            style: TextStyle(fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 4),
-          FormBuilderDropdown<String>(
-            name: "departemen",
-            validator: requiredField("Departemen"),
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: Colors.grey.shade100,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
+      child: FutureBuilder(
+        future: DepartmentService.instance.getDepartements(),
+        builder: (context, snapshot) {
+          List<DropdownMenuItem<String>>? departments = snapshot.data?.data
+              ?.map((department) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return DropdownMenuItem<String>(
+                    value: "",
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                } else {
+                  return DropdownMenuItem<String>(
+                    value: department.id.toString(),
+                    child: Text(department.name),
+                  );
+                }
+              })
+              .toList();
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Departemen",
+                style: TextStyle(fontWeight: FontWeight.w600),
               ),
-            ),
-            hint: const Text("Pilih Departemen"),
-            items: const [
-              DropdownMenuItem(value: "hr", child: Text("HR")),
-              DropdownMenuItem(value: "finance", child: Text("Finance")),
-              DropdownMenuItem(value: "it", child: Text("IT")),
-              DropdownMenuItem(value: "marketing", child: Text("Marketing")),
+              const SizedBox(height: 4),
+              FormBuilderDropdown<String>(
+                name: "departemen",
+                validator: requiredField("Departemen"),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.grey.shade100,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                hint: const Text("Pilih Departemen"),
+                items:
+                    departments ??
+                    [DropdownMenuItem(child: Text("Tidak ada data"))],
+              ),
             ],
-          ),
-        ],
+          );
+        },
       ),
     );
   }

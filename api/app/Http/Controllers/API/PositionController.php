@@ -11,7 +11,12 @@ class PositionController extends Controller
 {
     public function show_positions()
     {
-        $positions = Position::all(["id", "name"]);
+        $positions = Position::all([
+            "id",
+            "name",
+            "rate_reguler",
+            "rate_overtime",
+        ]);
         return ResponseWrapper::make(
             "Positions found",
             200,

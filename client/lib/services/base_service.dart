@@ -24,6 +24,7 @@ class BaseService<T> {
     );
   }
 
+  @protected
   List<T> parseData(
     Object? data,
     String attribute,
