@@ -47,7 +47,6 @@ class _AdminIzinDashboardState extends State<AdminIzinDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    final double screenHeight = MediaQuery.of(context).size.height;
     final double screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
@@ -92,7 +91,6 @@ class _AdminIzinDashboardState extends State<AdminIzinDashboard> {
               return CustomScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 slivers: [
-                  // HEADER (SAMA seperti sebelum)
                   SliverToBoxAdapter(
                     child: Container(
                       decoration: const BoxDecoration(
@@ -132,7 +130,6 @@ class _AdminIzinDashboardState extends State<AdminIzinDashboard> {
                             ),
                             const SizedBox(height: 30),
 
-                            // STAT CARDS (SAMA seperti sebelum)
                             Row(
                               children: [
                                 Expanded(
@@ -162,7 +159,6 @@ class _AdminIzinDashboardState extends State<AdminIzinDashboard> {
 
                   const SliverToBoxAdapter(child: SizedBox(height: 40)),
 
-                  // BUTTON SEMUA KARYAWAN (SAMA)
                   SliverToBoxAdapter(
                     child: Center(
                       child: GestureDetector(
@@ -194,7 +190,6 @@ class _AdminIzinDashboardState extends State<AdminIzinDashboard> {
 
                   const SliverToBoxAdapter(child: SizedBox(height: 24)),
 
-                  // GRID DEPARTEMEN (SAMA)
                   SliverPadding(
                     padding: EdgeInsets.only(
                       left: 20,
@@ -239,10 +234,6 @@ class _AdminIzinDashboardState extends State<AdminIzinDashboard> {
       ),
     );
   }
-
-  // =============================
-  //      UI COMPONENTS (SAMA)
-  // =============================
 
   Widget _buildCleanStatCard({
     required IconData icon,
