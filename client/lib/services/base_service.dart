@@ -6,7 +6,14 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 class BaseService<T> {
   @protected
   final Dio dio = Dio(
-    BaseOptions(contentType: "application/json", baseUrl: Constant.apiUrl),
+    BaseOptions(
+      headers: {
+        "ngrok-skip-browser-warning": "true",
+        "Accept": "application/json",
+      },
+      connectTimeout: const Duration(seconds: 15),
+      receiveTimeout: const Duration(seconds: 15),
+    ),
   );
 
   BaseService() {

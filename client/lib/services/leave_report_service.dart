@@ -1,38 +1,16 @@
+import 'package:client/models/leave_report_model.dart';
 import 'package:client/utils/api_wrapper.dart';
 import 'package:client/utils/constant.dart';
-import 'package:client/models/leave_report_model.dart';
-import 'package:dio/dio.dart';
+import 'package:client/services/base_service.dart';
 
-class LeaveReportService {
-  LeaveReportService._();
-  static final instance = LeaveReportService._();
-
-  // Dio memakai baseUrl dari constant.dart
-  final Dio dio = Dio(BaseOptions(
-    baseUrl: Constant.apiUrl,
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 10),
-  ));
-
+class LeaveReportService extends BaseService<LeaveReportResponse> {
   Future<ApiResponse<LeaveReportResponse>> getDashboard() async {
     try {
-      final response = await dio.get(
-        "/izin-dashboard",
-        options: Options(
-          headers: {
-            "Accept": "application/json",
-            "ngrok-skip-browser-warning": "true",
-          },
-        ),
-      );
+      final res = await dio.get("${Constant.apiUrl}/izin-dashboard");
 
-      // ❗ Wrapper memiliki struktur:
-      // { message, success, data, error }
-      return ApiResponse<LeaveReportResponse>.fromJson(
-        response.data,
-        (rawJson) => LeaveReportResponse.fromJson(
-          rawJson as Map<String, dynamic>,
-        ),
+      return ApiResponse.fromJson(
+        res.data,
+        (raw) => LeaveReportResponse.fromJson(raw as Map<String, dynamic>),
       );
     } catch (e) {
       return ApiResponse(

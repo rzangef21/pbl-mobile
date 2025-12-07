@@ -12,19 +12,20 @@ class AdminIzinDashboard extends StatefulWidget {
 }
 
 class _AdminIzinDashboardState extends State<AdminIzinDashboard> {
+  late final LeaveReportService leaveService = LeaveReportService();
   late Future<ApiResponse<LeaveReportResponse>> dashboardFuture;
 
-  @override
-  void initState() {
-    super.initState();
-    dashboardFuture = LeaveReportService.instance.getDashboard();
-  }
+      @override
+    void initState() {
+      super.initState();
+      dashboardFuture = leaveService.getDashboard();
+    }
 
-  Future<void> _refresh() async {
-    setState(() {
-      dashboardFuture = LeaveReportService.instance.getDashboard();
-    });
-  }
+    Future<void> _refresh() async {
+      setState(() {
+        dashboardFuture = leaveService.getDashboard();
+      });
+    }
 
   String _getMonthName(int month) {
     const months = [

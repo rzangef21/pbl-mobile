@@ -1,33 +1,34 @@
-import 'package:dio/dio.dart';
+import 'package:client/models/izin_manager_model.dart';
 import 'package:client/utils/constant.dart';
-import '../models/izin_manager_model.dart';
+import 'package:client/services/base_service.dart';
 
-class IzinService {
-  final Dio _dio = Dio();
-
+class IzinService extends BaseService<IzinModel> {
   // ---------------- DASHBOARD ----------------
   Future<Map<String, int>> loadDashboard() async {
-    final res = await _dio.get("${Constant.apiUrl}/izin-dashboard");
+    final res = await dio.get("${Constant.apiUrl}/izin-dashboard");
+
+    final data = res.data["data"] ?? {};
 
     return {
-      "approvedOrRejected":
-          res.data["data"]["total_letters_approved_or_rejected"],
-      "pending": res.data["data"]["total_letters_pending"],
+      "approvedOrRejected": data["total_letters_approved_or_rejected"] ?? 0,
+      "pending": data["total_letters_pending"] ?? 0,
     };
   }
 
   // ---------------- LIST IZIN ----------------
   Future<List<IzinModel>> loadIzinList() async {
-    final res = await _dio.get("${Constant.apiUrl}/izin-list");
+    final res = await dio.get("${Constant.apiUrl}/izin-list");
 
-    final List raw = (res.data["data"] as List?) ?? [];
-
-    return raw.map((item) => IzinModel.fromJson(item)).toList();
+    return parseData(
+      res.data,
+      "data",
+      (json) => IzinModel.fromJson(json),
+    );
   }
 
   // ---------------- UPDATE STATUS ----------------
   Future<bool> updateStatus(int id, int newStatus) async {
-    final res = await _dio.post(
+    final res = await dio.post(
       "${Constant.apiUrl}/izin-update/$id",
       data: {"status": newStatus},
     );
