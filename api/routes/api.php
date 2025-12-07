@@ -15,22 +15,42 @@ Route::get('/test', function () {
 
 
 Route::get('/letters', [LetterController::class, 'index']);
+Route::get('/letter-formats', [LetterController::class, 'getAllFormats']);
 Route::get('/letters/{id}', [LetterController::class, 'show']);
 Route::post('/letters', [LetterController::class, 'store']);
 Route::put('/letters/{id}/status', [LetterController::class, 'updateStatus']);
 Route::delete('/letters/{id}', [LetterController::class, 'destroy']);
 
-Route::get('/izin-dashboard', IzinDashboardController::class);
-Route::get('/izin-list', [IzinDashboardController::class, 'izinList']);
-Route::post('/izin-update/{id}', [IzinDashboardController::class, 'updateStatus']);
-Route::get('/export-approved-letters', [IzinDashboardController::class, 'exportApprovedLetters']);
+// Laporan Izin
+Route::get('/izin-dashboard', IzinDashboardController::class)->middleware(
+    "auth:sanctum",
+);
+Route::get('/izin-list', [IzinDashboardController::class, 'izinList'])->middleware(
+    "auth:sanctum",
+);
+Route::post('/izin-update/{id}', [IzinDashboardController::class, 'updateStatus'])->middleware(
+    "auth:sanctum",
+);
+Route::get('/export-approved-letters', [IzinDashboardController::class, 'exportApprovedLetters'])->middleware(
+    "auth:sanctum",
+);
 
-Route::get('/templates', [TemplateController::class, 'index']);
-Route::post('/templates', [TemplateController::class, 'store']);
-Route::get('/templates/{id}', [TemplateController::class, 'show']);
-Route::put('/templates/{id}', [TemplateController::class, 'update']);
-Route::get('/templates/default', [TemplateController::class, 'default']);
-Route::delete('/templates/{id}', [TemplateController::class, 'destroy']);
+// Template Surat
+Route::get('/templates', [TemplateController::class, 'index'])->middleware(
+    "auth:sanctum",
+);
+Route::post('/templates', [TemplateController::class, 'store'])->middleware(
+    "auth:sanctum",
+);
+Route::get('/templates/{id}', [TemplateController::class, 'show'])->middleware(
+    "auth:sanctum",
+);
+Route::put('/templates/{id}', [TemplateController::class, 'update'])->middleware(
+    "auth:sanctum",
+);
+Route::delete('/templates/{id}', [TemplateController::class, 'destroy'])->middleware(
+    "auth:sanctum",
+);
 
 
 

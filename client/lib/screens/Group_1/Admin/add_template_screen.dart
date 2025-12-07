@@ -30,7 +30,7 @@ class _AddTemplateScreenState extends State<AddTemplateScreen> {
     return """
 SURAT IZIN {{NAMA SURAT}}
 
-Perihal: Izin {{NAMA SURAT}}
+Perihal: Izin {{Alasan}}
 Lampiran: -
 
 Kepada Yth. HRD

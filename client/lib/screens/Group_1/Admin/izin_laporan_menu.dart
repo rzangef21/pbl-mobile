@@ -61,7 +61,7 @@ class _AdminIzinDashboardState extends State<AdminIzinDashboard> {
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/'),
+          onPressed: () => context.go('/admin'),
         ),
       ),
       body: SafeArea(

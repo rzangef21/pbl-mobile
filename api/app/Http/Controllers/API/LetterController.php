@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Helpers\ResponseWrapper;
 use App\Models\Letter;
+use App\Models\LetterFormat;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -34,7 +35,6 @@ class LetterController extends Controller
                 $letters,
                 null
             );
-
         } catch (\Exception $e) {
             return ResponseWrapper::make(
                 "Gagal memuat data surat",
@@ -45,6 +45,33 @@ class LetterController extends Controller
             );
         }
     }
+
+    public function getAllFormats()
+    {
+        try {
+            $formats = LetterFormat::select('id', 'name')
+                ->where('id', '!=', 1)
+                ->get();
+
+            return ResponseWrapper::make(
+                "Daftar format surat berhasil dimuat",
+                200,
+                true,
+                $formats,
+                null
+            );
+        } catch (\Exception $e) {
+            return ResponseWrapper::make(
+                "Gagal memuat format surat",
+                500,
+                false,
+                null,
+                $e->getMessage()
+            );
+        }
+    }
+
+
 
     public function show($id)
     {
@@ -58,7 +85,6 @@ class LetterController extends Controller
                 $letter,
                 null
             );
-
         } catch (\Exception $e) {
             return ResponseWrapper::make(
                 "Surat tidak ditemukan",
@@ -80,6 +106,9 @@ class LetterController extends Controller
                 'effective_start_date'   => 'required|date',
                 'effective_end_date'     => 'required|date|after_or_equal:effective_start_date',
                 'notes'                  => 'nullable|string',
+                'employee_data.name'     => 'required|string|max:255',
+                'employee_data.position' => 'required|string|max:100',
+                'employee_data.department' => 'required|string|max:100',
             ]);
 
             $validated['status'] = 0; // pending
@@ -94,7 +123,6 @@ class LetterController extends Controller
                 $letter,
                 null
             );
-
         } catch (\Exception $e) {
             return ResponseWrapper::make(
                 "Gagal membuat pengajuan surat",
@@ -127,7 +155,6 @@ class LetterController extends Controller
                 $letter,
                 null
             );
-
         } catch (\Exception $e) {
             return ResponseWrapper::make(
                 "Gagal memperbarui status surat",
@@ -152,7 +179,6 @@ class LetterController extends Controller
                 null,
                 null
             );
-
         } catch (\Exception $e) {
             return ResponseWrapper::make(
                 "Gagal menghapus surat",

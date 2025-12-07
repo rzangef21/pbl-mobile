@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class HomeScreenUser extends StatelessWidget {
+  const HomeScreenUser({super.key});
 
   @override
 Widget build(BuildContext context) {
@@ -76,12 +76,10 @@ Widget build(BuildContext context) {
                 childAspectRatio: MediaQuery.of(context).size.width > 400 ? 1.1 : 1.0,
               ),
               delegate: SliverChildListDelegate([
-                _buildMenuCard(context, icon: Icons.analytics, title: 'Laporan Izin', subtitle: 'Lihat laporan dan analisis', color: const Color(0xFF3674B5), onTap: () => context.pushNamed('laporan_izin')),
-                _buildMenuCard(context, icon: Icons.assignment, title: 'Kelola Izin', subtitle: 'Kelola pengajuan izin', color: const Color(0xFF3674B5), onTap: () => context.pushNamed('kelola_izin')),
-                _buildMenuCard(context, icon: Icons.access_time, title: 'Absensi', subtitle: 'Sistem kehadiran', color: const Color(0xFF4E71FF), onTap: () => context.pushNamed('absensi')),
+                _buildMenuCard(context, icon: Icons.assignment, title: 'Izin Cuti', subtitle: 'Pengajuan izin', color: const Color(0xFF3674B5), onTap: () => context.go('/izin')),
+                _buildMenuCard(context, icon: Icons.access_time, title: 'Absensi', subtitle: 'Sistem kehadiran', color: const Color(0xFF3674B5), onTap: () => context.pushNamed('absensi')),
                 _buildMenuCard(context, icon: Icons.people, title: 'Karyawan', subtitle: 'Data karyawan', color: const Color(0xFF4E71FF), onTap: () => context.pushNamed('karyawan')),
-                _buildMenuCard(context, icon: Icons.payment, title: 'Payroll', subtitle: 'Sistem penggajian', color: const Color(0xFF00A9FF), onTap: () => context.pushNamed('payroll')),
-                _buildMenuCard(context, icon: Icons.settings, title: 'Pengaturan', subtitle: 'Konfigurasi sistem', color: const Color(0xFF00A9FF), onTap: () => context.pushNamed('pengaturan')),
+                _buildMenuCard(context, icon: Icons.payment, title: 'Slip Gaji', subtitle: 'Detail gaji', color: const Color(0xFF4E71FF), onTap: () => context.pushNamed('payroll')),
               ]),
             ),
           ),
@@ -92,14 +90,14 @@ Widget build(BuildContext context) {
               padding: const EdgeInsets.fromLTRB(24, 30, 24, 40),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TextButton.icon(
-                    onPressed: () => context.goNamed('login'),
-                    icon: const Icon(Icons.logout, color: Colors.grey),
-                    label: const Text('Logout', style: TextStyle(color: Colors.grey)),
-                  ),
-                  Text('Version 1.0.0', style: TextStyle(color: Colors.grey[500], fontSize: 12)),
-                ],
+                // children: [
+                //   TextButton.icon(
+                //     onPressed: () => context.goNamed('login'),
+                //     icon: const Icon(Icons.logout, color: Colors.grey),
+                //     label: const Text('Logout', style: TextStyle(color: Colors.grey)),
+                //   ),
+                //   Text('Version 1.0.0', style: TextStyle(color: Colors.grey[500], fontSize: 12)),
+                // ],
               ),
             ),
           ),

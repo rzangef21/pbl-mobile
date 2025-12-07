@@ -119,7 +119,7 @@ class _AdminIzinManagerState extends State<AdminIzinManager> {
       elevation: 0,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: Colors.white),
-        onPressed: () => context.go('/'),
+        onPressed: () => context.go('/admin'),
       ),
       centerTitle: true,
       title: const Text(
