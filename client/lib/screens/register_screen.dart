@@ -8,8 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
-import 'package:client/models/department_model.dart'; 
-import 'package:client/models/position_model.dart'; 
+import 'package:client/models/department_model.dart';
+import 'package:client/models/position_model.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -65,12 +65,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text("Sukses tambah data!")));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('✅ Sukses tambah data karyawan!'),
+        backgroundColor: Colors.green,
+        duration: Duration(seconds: 2),
+      ),
+    );
 
-    context.pop();
-    return;
+    // ✅ WAIT A BIT FOR SNACKBAR TO SHOW
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    if (!context.mounted) return;
+
+    // ✅ POP WITH TRUE TO SIGNAL SUCCESS
+    context.pop(true);
   }
 
   @override
@@ -365,7 +374,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
       child: FutureBuilder<ApiResponse<List<PositionModel>>>(
-        future: PositionService.instance.getPositions(), 
+        future: PositionService.instance.getPositions(),
         builder: (context, snapshot) {
           // Loading state
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -476,8 +485,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
       child: FutureBuilder<ApiResponse<List<DepartmentModel>>>(
-        future: DepartmentService.instance
-            .getDepartments(),
+        future: DepartmentService.instance.getDepartments(),
         builder: (context, snapshot) {
           // Loading state
           if (snapshot.connectionState == ConnectionState.waiting) {
