@@ -1,3 +1,3 @@
 class Constant {
-  static String apiUrl = "http://10.0.2.2/api";
+  static String apiUrl = "https://collene-eternal-luba.ngrok-free.dev/api";
 }
