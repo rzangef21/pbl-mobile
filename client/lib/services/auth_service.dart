@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:client/services/base_service.dart';
 import 'package:client/utils/api_wrapper.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 
@@ -13,11 +12,7 @@ class AuthService extends BaseService {
   static final AuthService instance = AuthService._();
   final storage = FlutterSecureStorage();
 
-  Future<Map<String, dynamic>> login(
-    BuildContext context,
-    String email,
-    String password,
-  ) async {
+  Future<Map<String, dynamic>> login(String email, String password) async {
     final login = await dio.post<Map<String, dynamic>>(
       "/login",
       data: {"email": email, "password": password, "device_name": "android"},

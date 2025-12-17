@@ -25,7 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final email = values["email"];
     final password = values["password"];
 
-    final login = await AuthService.instance.login(context, email, password);
+    final login = await AuthService.instance.login(email, password);
 
     if (!context.mounted) return;
 
@@ -55,16 +55,12 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 40),
-                
+
                 // Logo
-                Image.asset(
-                  'assets/logoputih.png',
-                  width: 80,
-                  height: 80,
-                ),
-                
+                Image.asset('assets/logoputih.png', width: 80, height: 80),
+
                 const SizedBox(height: 40),
-                
+
                 // Header
                 const Text(
                   'Masuk',
@@ -74,19 +70,16 @@ class _LoginScreenState extends State<LoginScreen> {
                     color: Colors.white,
                   ),
                 ),
-                
+
                 const SizedBox(height: 10),
-                
+
                 const Text(
                   'Isi email dan password yang sesuai!',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white,
-                  ),
+                  style: TextStyle(fontSize: 16, color: Colors.white),
                 ),
-                
+
                 const SizedBox(height: 40),
-                
+
                 // White Container for Form
                 Container(
                   padding: const EdgeInsets.all(20),
@@ -108,9 +101,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        
+
                         // Email Field
                         FormBuilderTextField(
+                          key: const Key("emailInput"),
                           name: "email",
                           keyboardType: TextInputType.emailAddress,
                           decoration: InputDecoration(
@@ -118,27 +112,36 @@ class _LoginScreenState extends State<LoginScreen> {
                             fillColor: Colors.white,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: Color(0xFF22A9D6)),
+                              borderSide: const BorderSide(
+                                color: Color(0xFF22A9D6),
+                              ),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: Color(0xFF22A9D6)),
+                              borderSide: const BorderSide(
+                                color: Color(0xFF22A9D6),
+                              ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: Color(0xFF22A9D6), width: 2),
+                              borderSide: const BorderSide(
+                                color: Color(0xFF22A9D6),
+                                width: 2,
+                              ),
                             ),
                           ),
                           validator: FormBuilderValidators.compose([
                             FormBuilderValidators.required(
                               errorText: "Email harus diisi",
                             ),
-                            FormBuilderValidators.email(errorText: "Email harus valid"),
+                            FormBuilderValidators.email(
+                              errorText: "Email harus valid",
+                            ),
                           ]),
                         ),
-                        
+
                         const SizedBox(height: 20),
-                        
+
                         // Password Label
                         const Text(
                           'Password',
@@ -148,9 +151,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        
+
                         // Password Field
                         FormBuilderTextField(
+                          key: const Key("passwordInput"),
                           name: "password",
                           obscureText: _obscureText,
                           decoration: InputDecoration(
@@ -158,19 +162,28 @@ class _LoginScreenState extends State<LoginScreen> {
                             fillColor: Colors.white,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: Color(0xFF22A9D6)),
+                              borderSide: const BorderSide(
+                                color: Color(0xFF22A9D6),
+                              ),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: Color(0xFF22A9D6)),
+                              borderSide: const BorderSide(
+                                color: Color(0xFF22A9D6),
+                              ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: Color(0xFF22A9D6), width: 2),
+                              borderSide: const BorderSide(
+                                color: Color(0xFF22A9D6),
+                                width: 2,
+                              ),
                             ),
                             suffixIcon: IconButton(
                               icon: Icon(
-                                _obscureText ? Icons.visibility_off : Icons.visibility,
+                                _obscureText
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
                                 size: 20,
                                 color: Colors.grey,
                               ),
@@ -185,9 +198,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ]),
                         ),
-                        
+
                         const SizedBox(height: 10),
-                        
+
                         // Forgot Password Link
                         Align(
                           alignment: Alignment.centerRight,
@@ -202,13 +215,14 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ),
-                        
+
                         const SizedBox(height: 24),
-                        
+
                         // Login Button
                         SizedBox(
                           width: double.infinity,
                           child: CustomButton(
+                            key: const Key("loginButton"),
                             backgroundColor: const Color(0xFF22A9D6),
                             onPressed: () => handleLogin(context),
                             child: const Text(
